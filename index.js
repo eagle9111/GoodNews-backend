@@ -1,8 +1,8 @@
 // index.js
-const express = require('express');
-const mongoose = require('mongoose');
-const newsRoute = require('./routes/new-route');
-require('dotenv').config();
+import express from 'express';
+import mongoose from 'mongoose';
+import dotenv from 'dotenv';
+import newsRoute from './routes/new-route.js';
 import cronJobs from './cron.js';
 
 const app = express();

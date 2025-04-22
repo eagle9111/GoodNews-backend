@@ -1,9 +1,8 @@
 // routes/new-route.js
-const express = require('express');
-const axios = require('axios');
-const News = require('../models/News');
-require('dotenv').config();
-
+import express from 'express';
+import axios from 'axios';
+import News from '../models/News.js';
+import dotenv from 'dotenv';
 const router = express.Router();
 
 // routes/new-route.js

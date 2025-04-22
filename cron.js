@@ -1,7 +1,6 @@
 // cron.js
 import cron from "cron";
 import https from "https";
-import http from "http";
 
 const keepAliveJob = new cron.CronJob("*/14 * * * *", function () {
   https

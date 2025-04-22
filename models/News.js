@@ -1,5 +1,4 @@
-const mongoose = require('mongoose');
-
+import mongoose from 'mongoose';
 const newsSchema = new mongoose.Schema({
   title: { type: String, unique: true },
   link: String,
