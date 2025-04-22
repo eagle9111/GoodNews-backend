@@ -63,26 +63,43 @@ router.get('/fetch-news', async (req, res) => {
 // GET /api/news - fetch saved news from MongoDB
 router.get('/news', async (req, res) => {
   try {
-    const news = await News.find().sort({ pubDate: -1 }).limit(20); // Latest 20 articles
-    res.status(200).json(news);
+    // Parse query parameters with default values
+    const page = parseInt(req.query.page) || 1;  // Default to page 1
+    const limit = parseInt(req.query.limit) || 8;  // Default to 20 items per page
+    
+    // Calculate the number of documents to skip
+    const skip = (page - 1) * limit;
+
+    // Get total count of documents for pagination info
+    const total = await News.countDocuments();
+
+    // Query with pagination
+    const news = await News.find()
+      .sort({ pubDate: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    // Calculate total pages
+    const totalPages = Math.ceil(total / limit);
+
+    // Return response with pagination metadata
+    res.status(200).json({
+      news,
+      pagination: {
+        currentPage: page,
+        totalPages,
+        totalItems: total,
+        itemsPerPage: limit,
+        hasNextPage: page < totalPages,
+        hasPreviousPage: page > 1
+      }
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Failed to retrieve news' });
   }
 });
-// GET /news/:id - fetch single article by ID
-router.get('/news/:id', async (req, res) => {
-  try {
-    const article = await News.findById(req.params.id);
-    if (!article) {
-      return res.status(404).json({ message: 'Article not found' });
-    }
-    res.status(200).json(article);
-  } catch (err) {
-    console.error('❌ Failed to fetch article by ID:', err.message || err);
-    res.status(500).json({ error: 'Failed to fetch article' });
-  }
-});
+
 
 
 module.exports = router;
