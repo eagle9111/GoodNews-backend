@@ -48,11 +48,11 @@ router.get("/likes", async (req, res) => {
 
 // Add a comment
 router.post("/comment", async (req, res) => {
-  const { postId, email, content } = req.body;
+  const { postId, email, fullName ,  content } = req.body;
   try {
     if (!content) return res.status(400).json({ message: "Comment content is required" });
     
-    const comment = new Comment({ postId, email, content });
+    const comment = new Comment({ postId, email, fullName ,  content });
     await comment.save();
     res.status(201).json(comment);
   } catch (err) {
@@ -62,7 +62,7 @@ router.post("/comment", async (req, res) => {
 
 router.get('/comments/:postId', async (req, res) => {
   const { postId } = req.params;
-  const { email } = req.query; // pass email in query like /comments/123?email=me@example.com
+  const { fullName } = req.query; 
 
   try {
     const allComments = await Comment.find({ postId }).sort({ createdAt: -1 });
@@ -70,7 +70,7 @@ router.get('/comments/:postId', async (req, res) => {
     let userComment = [];
     let otherComments = [];
 
-    if (email) {
+    if (fullName) {
       userComment = allComments.filter(c => c.email === email);
       otherComments = allComments.filter(c => c.email !== email);
     } else {
