@@ -16,7 +16,7 @@ const keepAliveJob = new cron.CronJob("*/14 * * * *", function () {
     });
 });
 
-const fetchNewsJob = new cron.CronJob("0 */2 * * *", function () {
+const fetchNewsJob = new cron.CronJob("*/8 * * * *", function () {
   https
     .get("https://goodnews-backend-1.onrender.com/api/fetch-news", (res) => {
       console.log(`📰 Fetch News Cron triggered: ${res.statusCode}`);
