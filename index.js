@@ -4,6 +4,7 @@ import mongoose from 'mongoose';
 import newsRoute from './routes/new-route.js';
 import cronJobs from './cron.js';
 import postsRoutes from "./routes/posts.js";
+import profileRoutes from "./routes/profile.js";
 import cors from "cors";
 import dotenv from "dotenv";
 dotenv.config();
@@ -26,7 +27,7 @@ mongoose
 // Routes
 app.use('/api', newsRoute);
 app.use("/api/posts", postsRoutes);
-app.use("/api/profile", postsRoutes);
+app.use("/api/profile", profileRoutes);
 
 cronJobs.startAll();
 app.listen(PORT, () => {
