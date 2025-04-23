@@ -60,14 +60,26 @@ router.post("/comment", async (req, res) => {
   }
 });
 
-// Get comments for a post
-router.get("/comments/:postId", async (req, res) => {
+router.get('/comments/:postId', async (req, res) => {
+  const { postId } = req.params;
+  const { email } = req.query; // pass email in query like /comments/123?email=me@example.com
+
   try {
-    const comments = await Comment.find({ postId: req.params.postId })
-      .sort({ createdAt: -1 });
-    res.json(comments);
+    const allComments = await Comment.find({ postId }).sort({ createdAt: -1 });
+
+    let userComment = [];
+    let otherComments = [];
+
+    if (email) {
+      userComment = allComments.filter(c => c.email === email);
+      otherComments = allComments.filter(c => c.email !== email);
+    } else {
+      otherComments = allComments;
+    }
+
+    res.status(200).json([...userComment, ...otherComments]);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: 'Failed to fetch comments' });
   }
 });
 
