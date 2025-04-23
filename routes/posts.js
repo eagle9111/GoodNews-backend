@@ -81,5 +81,25 @@ router.delete("/comment/:id", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+// Add these new routes to posts.js
 
+// Get total likes count for a post
+router.get("/likes/count/:postId", async (req, res) => {
+  try {
+    const count = await Like.countDocuments({ postId: req.params.postId });
+    res.json({ count });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Get total comments count for a post
+router.get("/comments/count/:postId", async (req, res) => {
+  try {
+    const count = await Comment.countDocuments({ postId: req.params.postId });
+    res.json({ count });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 export default router;
