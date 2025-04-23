@@ -1,6 +1,6 @@
 // routes/profile.js
 import express from 'express';
-import Post from '../models/Post.js';
+import News from '../models/News.js';
 import Comment from '../models/Comment.js';
 import Like from '../models/Like.js';
 
@@ -16,7 +16,7 @@ router.get('/liked-posts/:email', async (req, res) => {
     const postIds = likes.map(like => like.postId);
     
     // Get the full post details for these posts
-    const posts = await Post.find({ _id: { $in: postIds } })
+    const posts = await News.find({ _id: { $in: postIds } })
       .sort({ createdAt: -1 });
     
     res.status(200).json(posts);
@@ -39,7 +39,7 @@ router.get('/commented-posts/:email', async (req, res) => {
     const postIds = comments.map(c => c._id);
     
     // Get the full post details for these posts
-    const posts = await Post.find({ _id: { $in: postIds } })
+    const posts = await News.find({ _id: { $in: postIds } })
       .sort({ createdAt: -1 });
     
     res.status(200).json(posts);
