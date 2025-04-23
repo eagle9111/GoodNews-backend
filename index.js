@@ -1,10 +1,11 @@
 // index.js
 import express from 'express';
 import mongoose from 'mongoose';
-import dotenv from 'dotenv';
 import newsRoute from './routes/new-route.js';
 import cronJobs from './cron.js';
 import postsRoutes from "./routes/posts.js";
+import dotenv from "dotenv";
+dotenv.config();
 
 
 const app = express();
