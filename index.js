@@ -4,6 +4,7 @@ import mongoose from 'mongoose';
 import newsRoute from './routes/new-route.js';
 import cronJobs from './cron.js';
 import postsRoutes from "./routes/posts.js";
+import cors from "cors";
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -12,7 +13,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
-
+app.use(cors());
 // MongoDB connection
 mongoose
   .connect(process.env.MONGODB_URI, {

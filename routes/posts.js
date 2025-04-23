@@ -18,6 +18,7 @@ router.post("/like", async (req, res) => {
     await like.save();
     res.status(201).json(like);
   } catch (err) {
+    console.error("Error in /like route:", err.message);
     res.status(500).json({ error: err.message });
   }
 });
