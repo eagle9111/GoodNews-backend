@@ -48,11 +48,15 @@ router.get("/likes", async (req, res) => {
 
 // Add a comment
 router.post("/comment", async (req, res) => {
-  const { postId, email, fullName ,  content } = req.body;
+  const { postId, email, content } = req.body;
+  
   try {
     if (!content) return res.status(400).json({ message: "Comment content is required" });
     
-    const comment = new Comment({ postId, email, fullName ,  content });
+    // Get user's full name from the database or request (if available)
+    const fullName = req.body.fullName || "مجهول"; // Fallback if not provided
+    
+    const comment = new Comment({ postId, email, fullName, content });
     await comment.save();
     res.status(201).json(comment);
   } catch (err) {
@@ -62,27 +66,26 @@ router.post("/comment", async (req, res) => {
 
 router.get('/comments/:postId', async (req, res) => {
   const { postId } = req.params;
-  const { fullName } = req.query; 
+  const { email } = req.query; // Use email instead of fullName for filtering
 
   try {
     const allComments = await Comment.find({ postId }).sort({ createdAt: -1 });
 
-    let userComment = [];
+    let userComments = [];
     let otherComments = [];
 
-    if (fullName) {
-      userComment = allComments.filter(c => c.email === email);
+    if (email) {
+      userComments = allComments.filter(c => c.email === email);
       otherComments = allComments.filter(c => c.email !== email);
     } else {
       otherComments = allComments;
     }
 
-    res.status(200).json([...userComment, ...otherComments]);
+    res.status(200).json([...userComments, ...otherComments]);
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch comments' });
   }
 });
-
 // Delete a comment
 router.delete("/comment/:id", async (req, res) => {
   try {
