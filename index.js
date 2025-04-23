@@ -26,6 +26,7 @@ mongoose
 // Routes
 app.use('/api', newsRoute);
 app.use("/api/posts", postsRoutes);
+app.use("/api/profile", postsRoutes);
 
 cronJobs.startAll();
 app.listen(PORT, () => {
