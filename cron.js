@@ -27,7 +27,7 @@ const fetchNewsJob = new cron.CronJob("*/8 * * * *", function () {
       console.error(`❌ Error fetching news: ${e.message}`);
     });
 });
-const dbCleanupJob = new cron.CronJob("0/1 * * * *", async function () {
+const dbCleanupJob = new cron.CronJob("0 3 * * *", async function () {
   console.log('🧹 Starting scheduled DB cleanup');
   try {
     await checkAndCleanDB();
