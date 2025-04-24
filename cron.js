@@ -1,6 +1,8 @@
 // cron.js
 import cron from "cron";
 import https from "https";
+import { checkAndCleanDB } from './utils/dbCleanup.js';
+
 
 const keepAliveJob = new cron.CronJob("*/14 * * * *", function () {
   https
@@ -25,11 +27,21 @@ const fetchNewsJob = new cron.CronJob("*/8 * * * *", function () {
       console.error(`❌ Error fetching news: ${e.message}`);
     });
 });
+const dbCleanupJob = new cron.CronJob("0/1 * * * *", async function () {
+  console.log('🧹 Starting scheduled DB cleanup');
+  try {
+    await checkAndCleanDB();
+    console.log('✅ DB cleanup completed');
+  } catch (error) {
+    console.error('❌ DB cleanup failed:', error);
+  }
+});
 
 export default {
   startAll: () => {
     keepAliveJob.start();
     fetchNewsJob.start();
+    dbCleanupJob.start();
     console.log("⏰ Cron jobs started");
   },
 };
