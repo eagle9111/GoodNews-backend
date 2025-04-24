@@ -1,5 +1,5 @@
 import express from 'express';
-import News from '../modals.js';
+import News from '../models/News.js'; 
 
 const router = express.Router();
 
