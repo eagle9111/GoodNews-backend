@@ -30,7 +30,7 @@ const fetchNewsJob = new cron.CronJob("*/8 * * * *", function () {
 const dbCleanupJob = new cron.CronJob("0 3 * * *", async function () {
   console.log('🧹 Starting scheduled DB cleanup');
   try {
-    await checkAndCleanDB();
+    await checkAndCleanDB(365);
     console.log('✅ DB cleanup completed');
   } catch (error) {
     console.error('❌ DB cleanup failed:', error);
