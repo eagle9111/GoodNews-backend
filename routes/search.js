@@ -1,60 +1,37 @@
-// routes/search.js
 import express from 'express';
-import News from '../models/News.js';
-import Like from '../models/Like.js';
-import Comment from '../models/Comment.js';
+import mongoose from 'mongoose';
+import News from '../modals.js';
 
 const router = express.Router();
 
 router.get('/', async (req, res) => {
   try {
-    const { q, sort } = req.query;
-    let sortOption = { pubDate: -1 };
+    const searchTerm = req.query.q;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 15;
 
-    if (sort === 'likes') {
-      sortOption = { likesCount: -1 };
-    } else if (sort === 'comments') {
-      sortOption = { commentsCount: -1 };
-    }
+    const query = {
+      title: { $regex: searchTerm, $options: 'i' }
+    };
 
-    const results = await News.aggregate([
-      {
-        $match: {
-          $or: [
-            { title: { $regex: q, $options: 'i' } },
-            { description: { $regex: q, $options: 'i' } },
-            { content: { $regex: q, $options: 'i' } }
-          ]
-        }
-      },
-      {
-        $lookup: {
-          from: 'likes',
-          localField: '_id',
-          foreignField: 'postId',
-          as: 'likes'
-        }
-      },
-      {
-        $lookup: {
-          from: 'comments',
-          localField: '_id',
-          foreignField: 'postId',
-          as: 'comments'
-        }
-      },
-      {
-        $addFields: {
-          likesCount: { $size: '$likes' },
-          commentsCount: { $size: '$comments' }
-        }
-      },
-      { $sort: sortOption }
-    ]);
+    const news = await News.find(query)
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .exec();
 
-    res.json(results);
+    const total = await News.countDocuments(query);
+
+    res.json({
+      news,
+      pagination: {
+        total,
+        page,
+        totalPages: Math.ceil(total / limit)
+      }
+    });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error('Search error:', err);
+    res.status(500).json({ error: 'فشل البحث' });
   }
 });
 
