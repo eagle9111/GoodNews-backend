@@ -6,7 +6,7 @@ const router = express.Router();
 
 router.get('/', async (req, res) => {
   try {
-    const { q: searchTerm, startDate, endDate } = req.query;
+    const { q: searchTerm } = req.query;
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 15;
 
@@ -17,13 +17,6 @@ router.get('/', async (req, res) => {
         { title: { $regex: searchTerm, $options: 'i' } },
         { description: { $regex: searchTerm, $options: 'i' } }
       ];
-    }
-
-    if (startDate && endDate) {
-      query.pubDate = { 
-        $gte: new Date(startDate), 
-        $lte: new Date(new Date(endDate).setHours(23, 59, 59, 999))
-      };
     }
 
     const [news, total] = await Promise.all([
@@ -46,7 +39,7 @@ router.get('/', async (req, res) => {
     });
   } catch (err) {
     console.error('Search error:', err);
-    res.status(500).json({ error: 'فشل البحث' });
+    res.status(500).json({ error: 'Search failed' });
   }
 });
 
