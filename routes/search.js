@@ -5,14 +5,16 @@ import Comment from "../models/Comment.js";
 
 const router = express.Router();
 
-// GET /api/search?query=&sort=likes&order=desc
 router.get("/", async (req, res) => {
   try {
-    const { query = "", sort = "date", order = "desc" } = req.query;
+    const { query = "", sort = "likes", order = "desc", page = 1, limit = 10 } = req.query;
+    const pageNum = parseInt(page);
+    const limitNum = parseInt(limit);
+    const skip = (pageNum - 1) * limitNum;
 
-    let sortField = "createdAt";
-    if (sort === "likes") sortField = "likesCount";
+    let sortField = "likesCount";
     if (sort === "comments") sortField = "commentsCount";
+    if (sort === "date") sortField = "pubDate";
 
     const news = await News.aggregate([
       {
@@ -47,7 +49,8 @@ router.get("/", async (req, res) => {
           [sortField]: order === "asc" ? 1 : -1,
         },
       },
-      { $limit: 50 },
+      { $skip: skip },
+      { $limit: limitNum },
     ]);
 
     res.json(news);
