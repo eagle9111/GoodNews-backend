@@ -1,34 +1,57 @@
+// routes/search.js
 import express from 'express';
-import News from '../models/News.js'; 
+import News from '../models/News.js';
+import Like from '../models/Like.js';
+import Comment from '../models/Comment.js';
 
 const router = express.Router();
 
 router.get('/', async (req, res) => {
   try {
-    const { 
-      q, 
-      source, 
-      dateFrom, 
-      dateTo,
-      sortBy = 'pubDate',  // Default sort field
-      sortOrder = 'desc'   // Default sort order
-    } = req.query;
-    
-    const query = {};
-    const sort = { [sortBy]: sortOrder === 'asc' ? 1 : -1 };
+    const { q, sort } = req.query;
+    let sortOption = { pubDate: -1 };
 
-    if (q) query.$text = { $search: q };
-    if (source) query.source_id = source;
-    if (dateFrom || dateTo) {
-      query.pubDate = {};
-      if (dateFrom) query.pubDate.$gte = new Date(dateFrom);
-      if (dateTo) query.pubDate.$lte = new Date(dateTo);
+    if (sort === 'likes') {
+      sortOption = { likesCount: -1 };
+    } else if (sort === 'comments') {
+      sortOption = { commentsCount: -1 };
     }
 
-    const results = await News.find(query)
-                             .sort(sort)
-                             .exec();
-                             
+    const results = await News.aggregate([
+      {
+        $match: {
+          $or: [
+            { title: { $regex: q, $options: 'i' } },
+            { description: { $regex: q, $options: 'i' } },
+            { content: { $regex: q, $options: 'i' } }
+          ]
+        }
+      },
+      {
+        $lookup: {
+          from: 'likes',
+          localField: '_id',
+          foreignField: 'postId',
+          as: 'likes'
+        }
+      },
+      {
+        $lookup: {
+          from: 'comments',
+          localField: '_id',
+          foreignField: 'postId',
+          as: 'comments'
+        }
+      },
+      {
+        $addFields: {
+          likesCount: { $size: '$likes' },
+          commentsCount: { $size: '$comments' }
+        }
+      },
+      { $sort: sortOption }
+    ]);
+
     res.json(results);
   } catch (err) {
     res.status(500).json({ error: err.message });
